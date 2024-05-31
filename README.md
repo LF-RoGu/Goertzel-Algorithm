@@ -11,9 +11,9 @@ This repository contains the VHDL implementation of the Goertzel Algorithm desig
 >
 > Matriculation Number: 7219310
 
-> Name: 
+> Name: Mohammed Rizwan
 >
-> Matriculation Number: 
+> Matriculation Number: 7218982
 
 > Name:
 >
