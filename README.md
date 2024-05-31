@@ -19,6 +19,12 @@ This repository contains the VHDL implementation of the Goertzel Algorithm desig
 >
 > Matriculation Number: 
 
+## Shared Folder [Link](https://fhdoprod.sharepoint.com/:f:/r/sites/Stud-Microelectronic/Shared%20Documents/General?csf=1&web=1&e=UawF4C)
+- Content
+  - Milestone
+  - Minute Meeting
+  - Task Distribution
+  - Design
 
 ## Project Overview
 
