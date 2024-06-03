@@ -1,5 +1,5 @@
 % Run the test for a specific frequency and phase
-desired_freq = 641; % Desired test frequency in Hz
+desired_freq = 691; % Desired test frequency in Hz
 phase_deg = 0; % Desired phase in degrees
 signal_type = 'sine'; % Signal type: 'sine', 'square', or 'triangle'
 

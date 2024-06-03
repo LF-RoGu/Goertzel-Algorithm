@@ -13,5 +13,5 @@ function test_frequency(desired_freq, phase_deg, signal_type)
     fprintf('Signal: %s, Frequency: %d Hz, Phase: %d deg, Goertzel Result: %f\n', signal_type, desired_freq, phase_deg, result);
 
     % Plot frequency response
-    plot_frequency_response(signal, fs, N, signal_type, desired_freq, phase_rad);
+    %plot_frequency_response(signal, fs, N, signal_type, desired_freq, phase_rad);
 end
