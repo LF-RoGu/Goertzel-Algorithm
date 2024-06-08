@@ -17,7 +17,50 @@ This repository contains the VHDL implementation of the Goertzel Algorithm desig
 
 > Name:
 >
-> Matriculation Number: 
+> Matriculation Number:
+
+## Goertzel Algorithm
+The Goertzel algorithm is a digital signal processing technique used to detect specific frequencies within a block of input data. It's particularly useful for applications like tone detection in telecommunication systems.
+
+In simple terms:
+
+#### Purpose: 
+The Goertzel algorithm is designed to detect a specific frequency component within a block of input samples.
+#### How it works: 
+It transforms the input data into a frequency domain representation but is optimized to focus on one frequency of interest.
+#### Advantages: 
+It’s more efficient than performing a full Fast Fourier Transform (FFT) when you only need to detect a single frequency.
+
+## Step-by-Step Equations
+
+### Initialization
+Set initial values:
+- \( s[0] = 0 \)
+- \( s[1] = 0 \)
+
+### Processing each sample x[n]
+1. Compute k, the index for the target frequency:
+   - k = (N * f_target) / f_sample
+
+2. Compute the coefficient:
+   - omega = (2 * pi * k) / N
+   - coeff = 2 * cos(omega)
+
+3. Update state:
+   - s[n] = x[n] + (coeff * s[n-1]) - s[n-2]
+
+4. Shift the states:
+   - s[n-2] = s[n-1]
+   - s[n-1] = s[n]
+
+### Final Calculation
+Compute the magnitude of the target frequency component:
+- real_part = s[N-1] - (s[N-2] * cos(omega))
+- imag_part = s[N-2] * sin(omega)
+- magnitude = sqrt(real_part^2 + imag_part^2)
+
+## Summary
+The Goertzel algorithm processes each input sample to update its internal state and finally computes the magnitude of the desired frequency component. This method is computationally efficient for detecting specific frequencies within a signal.
 
 ## Shared Folder [Link](https://fhdoprod.sharepoint.com/:f:/r/sites/Stud-Microelectronic/Shared%20Documents/General?csf=1&web=1&e=UawF4C)
 - Content
