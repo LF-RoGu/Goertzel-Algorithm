@@ -31,7 +31,7 @@ It transforms the input data into a frequency domain representation but is optim
 #### Advantages: 
 It’s more efficient than performing a full Fast Fourier Transform (FFT) when you only need to detect a single frequency.
 
-## Step-by-Step Equations
+### Step-by-Step Equations
 
 ### Initialization
 Set initial values:
@@ -59,8 +59,8 @@ Compute the magnitude of the target frequency component:
 - imag_part = s[N-2] * sin(omega)
 - magnitude = sqrt(real_part^2 + imag_part^2)
 
-## Summary
-The Goertzel algorithm processes each input sample to update its internal state and finally computes the magnitude of the desired frequency component. This method is computationally efficient for detecting specific frequencies within a signal.
+### Summary
+The Goertzel algorithm processes each input sample to update its internal state and finally computes the magnitude of the desired frequency component. *This method is efficient for detecting specific frequencies within a signal.*
 
 ## Shared Folder [Link](https://fhdoprod.sharepoint.com/:f:/r/sites/Stud-Microelectronic/Shared%20Documents/General?csf=1&web=1&e=UawF4C)
 - Content
