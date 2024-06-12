@@ -81,12 +81,30 @@ The Goertzel Algorithm is implemented with the following specifications:
 
 ## Modules
 
-### Module A: Input Interface Module
-- **Function**: Handles the input data stream from the ADC, converts 12-bit unsigned input data to 20-bit signed data.
+### Module A: The system
+- **Function**: container for the modules
+- **Tasks**:
+- **Interface**:
+  - rst
+  - clk
+  - 12-bit unsigned input samples.
+  - N (number of sample: int)[generic]
+  - frequency sample
+  - output magnitude
+  - output real number
+  - output imaginary number
+ 
+### Module B: Filler
+- **Function**: Convert the 12-bit unsigned samples to 20-bit signed samples (2’s complement)
 - **Tasks**:
   - Accept 12-bit unsigned input samples.
   - Convert the 12-bit unsigned samples to 20-bit signed samples (2’s complement).
-  - Pass the converted samples to the Goertzel Core Module.
+  - Pass the converted samples to the Goertzel Module.
+- **Interface**:
+  - rst
+  - clk
+  - 12-bit unsigned input samples.
+  - output 20-bit signed samples
 
 ### Module B: Goertzel Core Module
 - **Function**: Implements the Goertzel algorithm to detect the presence and level of the 150 kHz signal within the input data.
