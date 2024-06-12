@@ -1,7 +1,7 @@
-function state = goertzel_process(input_sample, coeff, state)
+function q = goertzel_process(input_sample, coeff, q)
     % Update the state with the new sample
-    s_new = input_sample + coeff * state(2) - state(1);
+    q0 = coeff * q(1) - q(2) + input_sample;
     % Update state array
-    state(1) = state(2);
-    state(2) = s_new;
+    q(1) = q(2);
+    q(2) = q0;
 end
