@@ -59,7 +59,7 @@ begin
                 imag_part <= q2_real * sin(omega);
 
                 -- Calculate magnitude
-                magnitude_real <= sqrt(real_part * real_part + imag_part * imag_part);
+                magnitude_real <= sqrt((real_part * real_part) + (imag_part * imag_part));
 
                 -- Convert magnitude to fixed-point representation
                 magnitude <= std_logic_vector(to_signed(integer(magnitude_real), N_bits));
