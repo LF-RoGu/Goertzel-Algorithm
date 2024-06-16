@@ -1,0 +1,76 @@
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.NUMERIC_STD.ALL;
+
+entity goertzel_final_tb is
+end goertzel_final_tb;
+
+architecture Behavioral of goertzel_final_tb is
+    -- Constants for the testbench
+    constant N_bits : integer := 20;
+
+    -- Testbench signals
+    signal clk       : std_logic := '0';
+    signal reset     : std_logic := '1';
+    signal enable    : std_logic := '0';
+    signal q1        : std_logic_vector(N_bits - 1 downto 0) := (others => '0');
+    signal q2        : std_logic_vector(N_bits - 1 downto 0) := (others => '0');
+    signal coeff     : std_logic_vector(N_bits - 1 downto 0) := (others => '0');
+    signal magnitude : std_logic_vector(N_bits - 1 downto 0);
+
+    -- Clock period
+    constant clk_period : time := 10 ns;
+
+begin
+    -- Instantiate the Unit Under Test (UUT)
+    uut: entity work.goertzel_final
+        generic map (
+            N_bits => N_bits
+        )
+        port map (
+            clk       => clk,
+            reset     => reset,
+            enable    => enable,
+            q1        => q1,
+            q2        => q2,
+            coeff     => coeff,
+            magnitude => magnitude
+        );
+
+    -- Clock generation process
+    clk_process : process
+    begin
+        while true loop
+            clk <= '0';
+            wait for clk_period / 2;
+            clk <= '1';
+            wait for clk_period / 2;
+        end loop;
+    end process;
+
+    -- Test process
+    test_process : process
+    begin
+        -- Initialize inputs
+        reset <= '1';
+        enable <= '0';
+        q1 <= std_logic_vector(to_unsigned(2, N_bits)); -- Example state
+        q2 <= std_logic_vector(to_unsigned(1, N_bits)); -- Example state
+        coeff <= std_logic_vector(to_unsigned(1, N_bits)); -- Example coefficient
+
+        -- Wait for global reset
+        wait for 20 ns;
+        reset <= '0';
+
+        -- Wait for a few clock cycles
+        wait for 20 ns;
+
+        -- Enable the module and observe outputs
+        enable <= '1';
+        wait for 100 ns;
+        enable <= '0';
+
+        -- End simulation
+        wait;
+    end process;
+end Behavioral;
