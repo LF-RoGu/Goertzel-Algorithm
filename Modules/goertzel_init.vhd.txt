@@ -1,0 +1,68 @@
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.NUMERIC_STD.ALL;
+use IEEE.MATH_REAL.ALL;
+
+entity goertzel_init is
+    generic 
+    (
+        N_bits   : integer := 20;
+        N_chunk  : integer := 135;  -- Project specific N
+        f_sample : real := 4000.0    -- Project sampling frequency
+    );
+    Port 
+    ( 
+        clk      : in  STD_LOGIC;
+        reset    : in  STD_LOGIC;
+        f_target : in  STD_LOGIC_VECTOR (N_bits - 1 downto 0);
+        coeff    : out STD_LOGIC_VECTOR (N_bits - 1 downto 0);
+        sine     : out STD_LOGIC_VECTOR (N_bits - 1 downto 0);
+        cosine   : out STD_LOGIC_VECTOR (N_bits - 1 downto 0)
+    );
+end goertzel_init;
+
+architecture Behavioral of goertzel_init is
+    signal k          : integer;
+    signal omega      : real;
+    signal f_target_real : real;
+    signal coeff_real : real;
+    signal sine_real  : real;
+    signal cosine_real: real;
+    constant PI : real := 3.141592653589793;
+begin
+    process(clk, reset)
+    begin
+        if reset = '1' then
+            k <= 0;
+            omega <= 0.0;
+            sine_real <= 0.0;
+            cosine_real <= 0.0;
+            coeff_real <= 0.0;
+        elsif clk'event and clk='1' then
+            -- Convert f_target to real
+            f_target_real <= real(to_integer(unsigned(f_target)));
+            
+            -- Calculate k based on target frequency, N_chunk, and sampling frequency
+            if f_sample /= 0.0 and N_chunk /= 0 then
+                k <= integer((real(N_chunk) * f_target_real) / f_sample);
+            else
+                k <= 0;
+            end if;
+
+            -- Calculate omega as 2 * pi * k / N_chunk
+            omega <= 2.0 * PI * real(k) / real(N_chunk);
+            
+            -- Calculate sine and cosine values of omega
+            sine_real <= sin(omega);
+            cosine_real <= cos(omega);
+            
+            -- Calculate the coefficient as 2 * cosine(omega)
+            coeff_real <= 2.0 * cosine_real;
+            
+            -- Convert results to STD_LOGIC_VECTOR
+            sine <= std_logic_vector(to_signed(integer(sine_real * (2.0 ** (N_bits - 1))), N_bits));
+            cosine <= std_logic_vector(to_signed(integer(cosine_real * (2.0 ** (N_bits - 1))), N_bits));
+            coeff <= std_logic_vector(to_signed(integer(coeff_real * (2.0 ** (N_bits - 1))), N_bits));
+        end if;
+    end process;
+end Behavioral;
