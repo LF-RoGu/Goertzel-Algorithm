@@ -3,8 +3,6 @@ use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
 use IEEE.MATH_REAL.ALL;
 
-
-
 entity result is
     port (
         clk : in std_logic;
@@ -22,6 +20,7 @@ end entity result;
 
 architecture Behavioral of result is
     signal real_internal, imag_internal : real;
+    signal magnitude_real : real;
 begin
     process(clk, rst)
     begin
@@ -34,7 +33,18 @@ begin
         end if;
     end process;
 
-   magnitude <= to_signed(integer(real_internal * scale), 20) + to_signed(integer(imag_internal * scale), 20);
+    -- Calculate magnitude
+    process(clk)
+    begin
+        if rising_edge(clk) then
+            magnitude_real <= sqrt(real_internal * real_internal + imag_internal * imag_internal) * scale;
+        end if;
+    end process;
+
+    -- Convert results to fixed-point representations
+    magnitude <= to_signed(integer(magnitude_real), 20);
     real_out <= to_signed(integer(real_internal), 20);
     imaginary <= to_signed(integer(imag_internal), 20);
+
 end architecture Behavioral;
+
