@@ -1,0 +1,40 @@
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.NUMERIC_STD.ALL;
+use IEEE.MATH_REAL.ALL;
+
+
+
+entity result is
+    port (
+        clk : in std_logic;
+        rst : in std_logic;
+        q1 : in real;
+        q2 : in real;
+        sine : in real;
+        cosine : in real;
+        scale : in real;
+        magnitude : out signed(19 downto 0);
+        real_out : out signed(19 downto 0);
+        imaginary : out signed(19 downto 0)
+    );
+end entity result;
+
+architecture Behavioral of result is
+    signal real_internal, imag_internal : real;
+begin
+    process(clk, rst)
+    begin
+        if rst = '1' then
+            real_internal <= 0.0;
+            imag_internal <= 0.0;
+        elsif rising_edge(clk) then
+            real_internal <= q1 - q2 * cosine;
+            imag_internal <= q2 * sine;
+        end if;
+    end process;
+
+   magnitude <= to_signed(integer(real_internal * scale), 20) + to_signed(integer(imag_internal * scale), 20);
+    real_out <= to_signed(integer(real_internal), 20);
+    imaginary <= to_signed(integer(imag_internal), 20);
+end architecture Behavioral;
