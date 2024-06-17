@@ -1,0 +1,128 @@
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.NUMERIC_STD.ALL;
+use IEEE.MATH_REAL.ALL;
+
+entity system is
+    generic (
+        N : integer := 135;
+        freq_sample : integer := 4000000
+    );
+    port (
+        clk : in std_logic;
+        rst : in std_logic;
+        input : in unsigned(11 downto 0);
+        magnitude : out signed(19 downto 0);
+        real_out : out signed(19 downto 0);
+        imaginary : out signed(19 downto 0)
+    );
+end entity system;
+
+architecture Behavioral of system is
+
+    -- Component declarations
+    component goertzel_init
+        generic (
+            N_bits : integer := 20;
+            N_chunk : integer := 135;
+            f_sample : real := 4000.0
+        );
+        port (
+            clk : in STD_LOGIC;
+            reset : in STD_LOGIC;
+            enable : in STD_LOGIC;
+            f_target : in STD_LOGIC_VECTOR(N_bits - 1 downto 0);
+            coeff : out STD_LOGIC_VECTOR(N_bits - 1 downto 0);
+            sine : out STD_LOGIC_VECTOR(N_bits - 1 downto 0);
+            cosine : out STD_LOGIC_VECTOR(N_bits - 1 downto 0)
+        );
+    end component;
+
+    component goertzel_final
+        generic (
+            N_bits : integer := 20;
+            scaling_factor : real := 1.0
+        );
+        port (
+            clk : in STD_LOGIC;
+            reset : in STD_LOGIC;
+            enable : in STD_LOGIC;
+            q1 : in STD_LOGIC_VECTOR(N_bits - 1 downto 0);
+            q2 : in STD_LOGIC_VECTOR(N_bits - 1 downto 0);
+            coeff : in STD_LOGIC_VECTOR(N_bits - 1 downto 0);
+            magnitude : out STD_LOGIC_VECTOR(N_bits - 1 downto 0)
+        );
+    end component;
+
+    component result
+        port (
+            clk : in std_logic;
+            rst : in std_logic;
+            q1 : in real;
+            q2 : in real;
+            sine : in real;
+            cosine : in real;
+            scale : in real;
+            magnitude : out signed(19 downto 0);
+            real_out : out signed(19 downto 0);
+            imaginary : out signed(19 downto 0)
+        );
+    end component;
+
+    -- Signals for internal connections
+    signal coeff, sine, cosine : std_logic_vector(19 downto 0);
+    signal q1, q2 : real;
+    signal scale : real := 1.0;
+    signal magnitude_internal : std_logic_vector(19 downto 0);
+
+begin
+
+    -- Instantiate the initializer component (goertzel_init)
+    U1: goertzel_init
+        generic map (
+            N_bits => 20,
+            N_chunk => N,
+            f_sample => real(freq_sample)
+        )
+        port map (
+            clk => clk,
+            reset => rst,
+            enable => '1',
+            f_target => std_logic_vector(to_unsigned(N, 20)),
+            coeff => coeff,
+            sine => sine,
+            cosine => cosine
+        );
+
+    -- Instantiate the goertzel component (goertzel_final)
+    U2: goertzel_final
+        generic map (
+            N_bits => 20,
+            scaling_factor => scale
+        )
+        port map (
+            clk => clk,
+            reset => rst,
+            enable => '1',
+            q1 => std_logic_vector(to_signed(integer(q1), 20)),
+            q2 => std_logic_vector(to_signed(integer(q2), 20)),
+            coeff => coeff,
+            magnitude => magnitude_internal
+        );
+
+    -- Instantiate the result component
+    U3: result
+        port map (
+            clk => clk,
+            rst => rst,
+            q1 => q1,
+            q2 => q2,
+            sine => real(to_integer(signed(sine))),
+            cosine => real(to_integer(signed(cosine))),
+            scale => scale,
+            magnitude => magnitude,
+            real_out => real_out,
+            imaginary => imaginary
+        );
+
+end architecture Behavioral;
