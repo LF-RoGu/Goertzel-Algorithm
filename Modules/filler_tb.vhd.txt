@@ -1,27 +1,26 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
-use IEEE.NUMERIC_STD.ALL;  -- Use NUMERIC_STD for unsigned and signed types
+use IEEE.STD_LOGIC_ARITH.ALL;
+use IEEE.STD_LOGIC_UNSIGNED.ALL;
 
-entity goertzel_filler_tb is
-end goertzel_filler_tb;
+entity OneComplToTwoCompl_tb is
+end OneComplToTwoCompl_tb;
 
-architecture Behavioral of goertzel_filler_tb is
+architecture Behavioral of OneComplToTwoCompl_tb is
 
-    -- Component declaration
-    component goertzel_filler is
-        Port (
-            clk : in  STD_LOGIC;
-            rst : in  STD_LOGIC;
-            input : in  signed(11 downto 0);
-            output : out  signed(19 downto 0)
-        );
+    -- Component Declaration
+    component OneComplToTwoCompl is
+        Port ( clk : in  STD_LOGIC;
+               rst : in  STD_LOGIC;
+               one_compl_in : in  STD_LOGIC_VECTOR (11 downto 0);
+               two_compl_out : out  STD_LOGIC_VECTOR (19 downto 0));
     end component;
 
-    -- Signals for connecting to the component
+    -- Signals to connect to the component
     signal clk : STD_LOGIC := '0';
     signal rst : STD_LOGIC := '0';
-    signal input : signed(11 downto 0) := (others => '0');
-    signal output : signed(19 downto 0);
+    signal one_compl_in : STD_LOGIC_VECTOR (11 downto 0);
+    signal two_compl_out : STD_LOGIC_VECTOR (19 downto 0);
 
     -- Clock period definition
     constant clk_period : time := 10 ns;
@@ -29,58 +28,59 @@ architecture Behavioral of goertzel_filler_tb is
 begin
 
     -- Instantiate the Unit Under Test (UUT)
-    uut: goertzel_filler
+    uut: OneComplToTwoCompl
         Port map (
             clk => clk,
             rst => rst,
-            input => input,
-            output => output
+            one_compl_in => one_compl_in,
+            two_compl_out => two_compl_out
         );
 
-    -- Clock generation
+    -- Clock process definitions
     clk_process :process
     begin
-	while True loop
-            clk <= '0';
-            wait for 5 ns;
-            clk <= '1';
-            wait for 5 ns;
-	end loop;
+        clk <= '0';
+        wait for clk_period/2;
+        clk <= '1';
+        wait for clk_period/2;
     end process;
 
     -- Stimulus process
     stim_proc: process
-	variable expected_output : signed(19 downto 0);
     begin
-		-- Test case 1: Reset the component
+        -- hold reset state for 20 ns
         rst <= '1';
         wait for 20 ns;
         rst <= '0';
-
-        -- Test case 2: Apply a positive number
-        input <= to_signed(341, 12);  -- +341 in decimal
-        expected_output := to_signed(341, 20);
-        wait for 10 ns;
-        --assert output = expected_output report "Test case 2 failed: +341" severity error;
-
-        -- Test case 3: Apply a negative number
-        input <= to_signed(-341, 12);  -- -341 in decimal
-        expected_output := to_signed(-341, 20);
         wait for 20 ns;
-        --assert output = expected_output report "Test case 3 failed: -341" severity error;
+        
+        -- Test case 1: Positive number in one's complement
+        one_compl_in <= "000000000000";  -- +0
+        wait for clk_period * 2;
+        assert (two_compl_out = "00000000000000000000")report "Test Case 1 Failed: +0" severity error;
+        
+        one_compl_in <= "000000000001";  -- +1
+        wait for clk_period * 2;
+        assert (two_compl_out = "00000000000000000001")report "Test Case 2 Failed: +1" severity error;
+        
+        one_compl_in <= "011111111111";  -- +2047
+        wait for clk_period * 2;
+        assert (two_compl_out = "00000000011111111111")report "Test Case 3 Failed: +2047" severity error;
+        
+        -- Test case 2: Negative number in one's complement
+        one_compl_in <= "111111111110";  -- -1
+        wait for clk_period * 2;
+        assert (two_compl_out = "11111111111111111111")report "Test Case 4 Failed: -1" severity error;
+        
+        one_compl_in <= "100000000000";  -- -2047
+        wait for clk_period * 2;
+        assert (two_compl_out = "11111111100000000001")report "Test Case 5 Failed: -2047" severity error;
+        
+        one_compl_in <= "111111111111";  -- -0
+        wait for clk_period * 2;
+        assert (two_compl_out = "00000000000000000000")report "Test Case 6 Failed: -0" severity error;
 
-        -- Test case 4: Apply another positive number
-        input <= to_signed(1, 12);  -- +1 in decimal
-        expected_output := to_signed(1, 20);
-        wait for 20 ns;
-        --assert output = expected_output report "Test case 4 failed: +1" severity error;
-
-        -- Test case 5: Apply another negative number
-        input <= to_signed(-1, 12);  -- -1 in decimal
-        expected_output := to_signed(-1, 20);
-        wait for 20 ns;
-        --assert output = expected_output report "Test case 5 failed: -1" severity error;
-        wait for 20 ns;
+        -- Additional test cases can be added here
 
         -- End simulation
         wait;
