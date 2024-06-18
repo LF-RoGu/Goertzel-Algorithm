@@ -1,0 +1,31 @@
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.NUMERIC_STD.ALL;
+use IEEE.MATH_REAL.ALL;
+
+entity comp2bin is
+    generic (
+        N_bits : integer := 12;
+    );
+    port (
+        i_data : in  STD_LOGIC_VECTOR (N_bits-1 downto 0);
+        o_data : out STD_LOGIC_VECTOR (N_bits-1 downto 0);
+        sign   : out STD_LOGIC
+    );
+end comp2bin;
+
+architecture Behavioral of comp2bin is
+begin
+    process(i_data)
+    begin
+        -- NEGATIVE NUMBER
+        if i_data(N_bits-1) = '1' then
+            o_data <= std_logic_vector(unsigned(not i_data) + 1);
+            sign <= '1';
+        else
+            -- POSITIVE NUMBER
+            o_data <= i_data;
+            sign <= '0';
+        end if;
+    end process;
+end Behavioral;
