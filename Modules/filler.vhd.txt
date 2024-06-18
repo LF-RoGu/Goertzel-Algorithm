@@ -19,7 +19,7 @@ begin
             output <= (others => '0');  -- Reset output to 0
         elsif rising_edge(clk) then
             -- Sign extend the 12-bit input to a 20-bit output
-            output <= (input(11) & input(11) & input(11) & input(11) & input(11) & input(11) & input(11) & input(11)) & input;
+            output <= resize(input, 20);
         end if;
     end process;
 end Behavioral;
