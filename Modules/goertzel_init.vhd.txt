@@ -23,49 +23,19 @@ entity goertzel_init is
 end goertzel_init;
 
 architecture Behavioral of goertzel_init is
-
-    signal k        : integer := 0;
-    signal omega    : real := 0.0;
-    signal sine_val : real := 0.0;
-    signal cosine_val : real := 0.0;
-    signal coeff_val  : real := 0.0;
-    
-    signal coeff_int    : integer := 0;
-    signal sine_int     : integer := 0;
-    signal cosine_int   : integer := 0;
-
 begin
 
     process(clk, reset)
     begin
         if reset = '1' then
-            k <= 0;
-            omega <= 0.0;
-            sine_val <= 0.0;
-            cosine_val <= 0.0;
-            coeff_val <= 0.0;
             coeff <= (others => '0');
             sine <= (others => '0');
             cosine <= (others => '0');
 
         elsif rising_edge(clk) then
-            if enable = '1' then
-                -- Convert f_target to integer
-                k <= integer(to_integer(unsigned(f_target)) * N_chunk / integer(f_sample));
-                omega <= 2.0 * math_pi * real(k) / real(N_chunk);
-                sine_val <= sin(omega);
-                cosine_val <= cos(omega);
-                coeff_val <= 2.0 * cosine_val;
-
-                -- Convert results to fixed-point representation
-                coeff_int <= integer(round(coeff_val * (2.0**(N_bits-1))));
-                sine_int <= integer(round(sine_val * (2.0**(N_bits-1))));
-                cosine_int <= integer(round(cosine_val * (2.0**(N_bits-1))));
-
-                coeff <= std_logic_vector(to_signed(coeff_int, N_bits));
-                sine <= std_logic_vector(to_signed(sine_int, N_bits));
-                cosine <= std_logic_vector(to_signed(cosine_int, N_bits));
-            end if;
+            coeff <= std_logic_vector(to_signed(1946, N_bits));
+            sine <= std_logic_vector(to_signed(230, N_bits));
+            cosine <= std_logic_vector(to_signed(973, N_bits));
         end if;
     end process;
 end Behavioral;
