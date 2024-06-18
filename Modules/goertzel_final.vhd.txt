@@ -16,7 +16,8 @@ entity goertzel_final is
         enable    : in  STD_LOGIC;
         q1        : in  STD_LOGIC_VECTOR (N_bits - 1 downto 0);
         q2        : in  STD_LOGIC_VECTOR (N_bits - 1 downto 0);
-        coeff     : in  STD_LOGIC_VECTOR (N_bits - 1 downto 0);
+        cosine    : in  STD_LOGIC_VECTOR (N_bits - 1 downto 0);
+        sine      : in  STD_LOGIC_VECTOR (N_bits - 1 downto 0);
         magnitude : out STD_LOGIC_VECTOR (N_bits - 1 downto 0)
     );
 end goertzel_final;
@@ -25,8 +26,8 @@ architecture Behavioral of goertzel_final is
 
     signal q1_real       : real;
     signal q2_real       : real;
-    signal coeff_real    : real;
-    signal omega         : real;
+    signal cosine_real   : real;
+    signal sine_real     : real;
     signal real_part     : real;
     signal imag_part     : real;
     signal magnitude_real: real;
@@ -39,25 +40,23 @@ begin
             magnitude <= (others => '0');
             q1_real <= 0.0;
             q2_real <= 0.0;
-            coeff_real <= 0.0;
-            omega <= 0.0;
+            cosine_real <= 0.0;
+            sine_real <= 0.0;
             real_part <= 0.0;
             imag_part <= 0.0;
             magnitude_real <= 0.0;
 
         elsif rising_edge(clk) then
             if enable = '1' then
-                -- Convert q1, q2, and coeff to real
+                -- Convert q1, q2, cosine, and sine to real
                 q1_real <= real(to_integer(signed(q1)));
                 q2_real <= real(to_integer(signed(q2)));
-                coeff_real <= real(to_integer(signed(coeff)));
-
-                -- Calculate omega
-                omega <= 2.0 * math_pi * coeff_real;
+                cosine_real <= real(to_integer(signed(cosine))) / 1000.0; -- Adjust for the scaling factor used in the previous code
+                sine_real <= real(to_integer(signed(sine))) / 1000.0;     -- Adjust for the scaling factor used in the previous code
 
                 -- Calculate real_part and imag_part with scaling
-                real_part <= (q1_real - (q2_real * cos(omega))) / scaling_factor;
-                imag_part <= (q2_real * sin(omega)) / scaling_factor;
+                real_part <= (q1_real - (q2_real * cosine_real)) / scaling_factor;
+                imag_part <= (q2_real * sine_real) / scaling_factor;
 
                 -- Calculate magnitude
                 magnitude_real <= sqrt(real_part * real_part + imag_part * imag_part);
