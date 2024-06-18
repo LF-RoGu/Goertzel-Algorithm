@@ -72,7 +72,6 @@ begin
             cosine => cosine,
             sine   => sine,
             scale  => scale,
-            q0     => q0,
             q1     => q1,
             q2     => q2
         );
@@ -82,7 +81,6 @@ begin
         port map (
             clk       => clk,
             rst       => rst,
-            q0        => q0,
             q1        => q1,
             q2        => q2,
             magnitude => magnitude,
