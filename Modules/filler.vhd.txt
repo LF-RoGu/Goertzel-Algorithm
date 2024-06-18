@@ -1,25 +1,40 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
-use IEEE.NUMERIC_STD.ALL;  -- Use NUMERIC_STD for unsigned and signed types
+use IEEE.STD_LOGIC_ARITH.ALL;
+use IEEE.STD_LOGIC_UNSIGNED.ALL;
 
-entity goertzel_filler is
-    Port (
-        clk : in  STD_LOGIC;
-        rst : in  STD_LOGIC;
-        input : in  signed(11 downto 0);
-        output : out  signed(19 downto 0)
-    );
-end goertzel_filler;
+entity OneComplToTwoCompl is
+    Port ( clk : in  STD_LOGIC;
+           rst : in  STD_LOGIC;
+           one_compl_in : in  STD_LOGIC_VECTOR (11 downto 0);
+           two_compl_out : out  STD_LOGIC_VECTOR (19 downto 0));
+end OneComplToTwoCompl;
 
-architecture Behavioral of goertzel_filler is
+architecture Behavioral of OneComplToTwoCompl is
 begin
     process(clk, rst)
+    variable temp : STD_LOGIC_VECTOR(19 downto 0);
+    variable sign_bit : STD_LOGIC;
     begin
         if rst = '1' then
-            output <= (others => '0');  -- Reset output to 0
+            -- Reset the output to zero or any other required initial value
+            two_compl_out <= (others => '0');
         elsif rising_edge(clk) then
-            -- Sign extend the 12-bit input to a 20-bit output
-            output <= resize(input, 20);
+            sign_bit := one_compl_in(11);
+            -- Sign-extend the input to 20 bits
+            if sign_bit = '1' then
+                temp := "11111111" & one_compl_in; -- Sign extend for negative number
+            else
+                temp := "00000000" & one_compl_in; -- Sign extend for positive number
+            end if;
+
+            -- Convert one's complement to two's complement if negative
+            if sign_bit = '1' then
+                temp := temp + 1;
+            end if;
+            
+            -- Assign the result to the output
+            two_compl_out <= temp;
         end if;
     end process;
 end Behavioral;
