@@ -1,3 +1,4 @@
+
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
@@ -13,14 +14,25 @@ entity system is
         rst : in std_logic;
         input : in unsigned(11 downto 0);
         magnitude : out signed(19 downto 0);
-        real_out : out signed(19 downto 0);
+        real_part : out signed(19 downto 0);
         imaginary : out signed(19 downto 0)
     );
 end entity system;
 
 architecture Behavioral of system is
+    ------------------------------------------------------------------------- comonentt (4)
 
-    -- Component declarations
+    -- filler
+    component goertzel_filler is
+        Port (
+            clk : in  STD_LOGIC;
+            rst : in  STD_LOGIC;
+            input : in  signed(11 downto 0);
+            output : out  signed(19 downto 0)
+        );
+    end component;
+
+    -- init
     component goertzel_init
         generic (
             N_bits : integer := 20;
@@ -38,38 +50,17 @@ architecture Behavioral of system is
         );
     end component;
 
+    -- goertzel
+    component goertzel
+    end component;
+
+    -- result
     component goertzel_final
-        generic (
-            N_bits : integer := 20;
-            scaling_factor : real := 1.0
-        );
-        port (
-            clk : in STD_LOGIC;
-            reset : in STD_LOGIC;
-            enable : in STD_LOGIC;
-            q1 : in STD_LOGIC_VECTOR(N_bits - 1 downto 0);
-            q2 : in STD_LOGIC_VECTOR(N_bits - 1 downto 0);
-            coeff : in STD_LOGIC_VECTOR(N_bits - 1 downto 0);
-            magnitude : out STD_LOGIC_VECTOR(N_bits - 1 downto 0)
-        );
     end component;
 
-    component result
-        port (
-            clk : in std_logic;
-            rst : in std_logic;
-            q1 : in real;
-            q2 : in real;
-            sine : in real;
-            cosine : in real;
-            scale : in real;
-            magnitude : out signed(19 downto 0);
-            real_out : out signed(19 downto 0);
-            imaginary : out signed(19 downto 0)
-        );
-    end component;
+   
 
-    -- Signals for internal connections
+    ----------------------------------------------------------------------------- Signals (internal)
     signal coeff, sine, cosine : std_logic_vector(19 downto 0);
     signal q1, q2 : real;
     signal scale : real := 1.0;
@@ -121,7 +112,7 @@ begin
             cosine => real(to_integer(signed(cosine))),
             scale => scale,
             magnitude => magnitude,
-            real_out => real_out,
+            real_part => real_part,
             imaginary => imaginary
         );
 
