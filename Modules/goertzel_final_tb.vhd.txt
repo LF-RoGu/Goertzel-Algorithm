@@ -13,7 +13,7 @@ architecture Behavioral of goertzel_final_tb is
 
     -- Signal declarations
     signal clk       : STD_LOGIC := '0';
-    signal reset     : STD_LOGIC := '1';
+    signal rst	     : STD_LOGIC := '1';
     signal enable    : STD_LOGIC := '0';
     signal q1        : STD_LOGIC_VECTOR (N_bits - 1 downto 0);
     signal q2        : STD_LOGIC_VECTOR (N_bits - 1 downto 0);
@@ -31,7 +31,7 @@ architecture Behavioral of goertzel_final_tb is
         Port 
         (
             clk       : in  STD_LOGIC;
-            reset     : in  STD_LOGIC;
+            rst	      : in  STD_LOGIC;
             enable    : in  STD_LOGIC;
             q1        : in  STD_LOGIC_VECTOR (N_bits - 1 downto 0);
             q2        : in  STD_LOGIC_VECTOR (N_bits - 1 downto 0);
@@ -58,10 +58,10 @@ begin
     stimulus : process
     begin
         -- Reset the system
-        reset <= '1';
+        rst <= '1';
         enable <= '0';
         wait for clk_period * 2;
-        reset <= '0';
+        rst <= '0';
         wait for clk_period * 2;
         
         -- Apply test vectors
@@ -94,7 +94,7 @@ begin
         )
         port map (
             clk => clk,
-            reset => reset,
+            rst => rst,
             enable => enable,
             q1 => q1,
             q2 => q2,
