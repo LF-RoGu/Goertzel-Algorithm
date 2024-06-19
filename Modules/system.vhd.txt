@@ -3,7 +3,7 @@ use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
 use IEEE.MATH_REAL.ALL;
 
-entity system is
+entity System is
     Port (
         clk         : in  STD_LOGIC;
         rst         : in  STD_LOGIC;
@@ -12,18 +12,19 @@ entity system is
         real        : out STD_LOGIC_VECTOR(19 downto 0);
         img         : out STD_LOGIC_VECTOR(19 downto 0)
     );
-end system;
+end System;
 
-architecture Structural of system is
+architecture Structural of System is
 
     -- Constant values
     constant N_const      : integer := 135;
-    constant f_target     : real := 135000.0; -- 135 kHz
-    constant f_sample     : real := 4000000.0; -- 4 MHz
+    constant f_target     : integer := 135000; -- 135 kHz as an integer
+    constant f_sample     : integer := 4000000; -- 4 MHz as an integer
 
     -- Signals to connect the submodules
-    signal filler_output  : STD_LOGIC_VECTOR(11 downto 0);
-    signal sample         : STD_LOGIC_VECTOR(11 downto 0);
+    signal enable		  : STD_LOGIC;
+    signal filler_output  : STD_LOGIC_VECTOR(19 downto 0);
+    signal sample         : STD_LOGIC_VECTOR(11 downto 0) := (others => '0');
     signal coeff          : STD_LOGIC_VECTOR(19 downto 0);
     signal cosine         : STD_LOGIC_VECTOR(19 downto 0);
     signal sine           : STD_LOGIC_VECTOR(19 downto 0);
@@ -35,26 +36,20 @@ architecture Structural of system is
 begin
 
     -- Filler instance
-    filler_inst : entity work.filler
+    goertzel_filler : entity work.goertzel_filler
         port map (
             clk    => clk,
             rst    => rst,
             input  => input,
-            output => filler_output,
-            sample => sample
+            output => filler_output
         );
 
     -- Initializer instance
-    initializer_inst : entity work.initializer
-        generic map (
-            N_bits => 20,
-            N_chunk => N_const,
-            f_sample => f_sample
-        )
+    goertzel_init : entity work.goertzel_init
         port map (
             clk      => clk,
-            reset    => rst,
-            enable   => '1', -- Assuming always enabled
+            rst	     => rst,
+            enable   => enable,
             f_target => std_logic_vector(to_unsigned(f_target, 20)),
             coeff    => coeff,
             sine     => sine,
@@ -62,30 +57,18 @@ begin
         );
 
     -- Goertzel instance
-    goertzel_inst : entity work.goertzel
-        port map (
-            clk    => clk,
-            rst    => rst,
-            sample => sample,
-            N      => std_logic_vector(to_unsigned(N_const, 8)),
-            coeff  => coeff,
-            cosine => cosine,
-            sine   => sine,
-            scale  => scale,
-            q1     => q1,
-            q2     => q2
-        );
 
     -- Result instance
-    result_inst : entity work.result
+    goertzel_final : entity work.goertzel_final
         port map (
             clk       => clk,
             rst       => rst,
+            enable	  => enable,
             q1        => q1,
             q2        => q2,
-            magnitude => magnitude,
-            real      => real,
-            img       => img
+            cosine	  => cosine,
+            sine	  => sine,
+            magnitude => magnitude
         );
 
 end Structural;

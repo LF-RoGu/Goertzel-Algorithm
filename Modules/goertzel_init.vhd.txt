@@ -8,12 +8,12 @@ entity goertzel_init is
     (
         N_bits   : integer := 20;
         N_chunk  : integer := 135;  -- Project specific N
-        f_sample : real := 4000.0    -- Project sampling frequency
+        f_sample : real := 4000000.0    -- Project sampling frequency
     );
     Port 
     ( 
         clk      : in  STD_LOGIC;
-        reset    : in  STD_LOGIC;
+        rst      : in  STD_LOGIC;
         enable   : in  STD_LOGIC;
         f_target : in  STD_LOGIC_VECTOR (N_bits - 1 downto 0);
         coeff    : out STD_LOGIC_VECTOR (N_bits - 1 downto 0);
@@ -25,9 +25,9 @@ end goertzel_init;
 architecture Behavioral of goertzel_init is
 begin
 
-    process(clk, reset)
+    process(clk, rst)
     begin
-        if reset = '1' then
+        if rst = '1' then
             coeff <= (others => '0');
             sine <= (others => '0');
             cosine <= (others => '0');
