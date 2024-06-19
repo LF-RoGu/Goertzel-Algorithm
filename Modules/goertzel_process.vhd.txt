@@ -1,0 +1,63 @@
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
+use ieee.math_real.all;
+
+entity goertzel_process is
+    generic (
+        numSamples : integer := 1353
+    );
+    port (
+        clk           : in  std_logic;
+        reset         : in  std_logic;
+        start         : in  std_logic;
+        data          : in  real_vector(0 to numSamples-1);
+        coeff         : in  real;
+        sine          : in  real;
+        cosine        : in  real;
+        q1_out        : out real;
+        q2_out        : out real;
+        done          : out std_logic
+    );
+end goertzel_process;
+
+architecture Behavioral of goertzel_process is
+    signal q0_reg, q1_reg, q2_reg : real := 0.0;
+    signal processing : std_logic := '0';
+begin
+    process (clk, reset)
+    begin
+        if reset = '1' then
+            q0_reg <= 0.0;
+            q1_reg <= 0.0;
+            q2_reg <= 0.0;
+            processing <= '0';
+            done <= '0';
+        elsif rising_edge(clk) then
+            if start = '1' then
+                processing <= '1';
+                q1_reg <= 0.0;
+                q2_reg <= 0.0;
+                done <= '0';
+            end if;
+
+            if processing = '1' then
+                assert (test_signal < 10)
+                report "Error: test_signal is not less than 10"
+                severity error;
+        
+                wait; -- Wait statement to stop the process for simulation purposes
+                for i in 0 to numSamples-1 loop
+                    q0_reg <= coeff * q1_reg - q2_reg + data(i);
+                    q2_reg <= q1_reg;
+                    q1_reg <= q0_reg;
+                end loop;
+                processing <= '0';
+                done <= '1';
+            end if;
+        end if;
+    end process;
+
+    q1_out <= q1_reg;
+    q2_out <= q2_reg;
+end Behavioral;
