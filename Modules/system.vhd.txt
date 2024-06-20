@@ -9,8 +9,8 @@ entity System is
         rst         : in  STD_LOGIC;
         input       : in  STD_LOGIC_VECTOR(11 downto 0);
         magnitude   : out STD_LOGIC_VECTOR(19 downto 0);
-        real_part        : out STD_LOGIC_VECTOR(19 downto 0);
-        img_part         : out STD_LOGIC_VECTOR(19 downto 0)
+        real_part   : out STD_LOGIC_VECTOR(19 downto 0);
+        img_part    : out STD_LOGIC_VECTOR(19 downto 0)
     );
 end System;
 
@@ -22,7 +22,6 @@ architecture Structural of System is
     constant f_sample     : integer := 4000000; -- 4 MHz as an integer
 
     -- Signals to connect the submodules
-    signal enable        : STD_LOGIC := '1';
     signal filler_output : STD_LOGIC_VECTOR(19 downto 0);
     signal sample        : STD_LOGIC_VECTOR(11 downto 0) := (others => '0');
     signal coeff         : STD_LOGIC_VECTOR(19 downto 0);
@@ -32,7 +31,6 @@ architecture Structural of System is
     signal q0            : STD_LOGIC_VECTOR(19 downto 0);
     signal q1            : STD_LOGIC_VECTOR(19 downto 0);
     signal q2            : STD_LOGIC_VECTOR(19 downto 0);
-    signal ready         : STD_LOGIC;
 
 begin
 
@@ -50,7 +48,6 @@ begin
         port map (
             clk      => clk,
             rst      => rst,
-            enable   => enable,
             f_target => std_logic_vector(to_unsigned(f_target, 20)),
             coeff    => coeff,
             sine     => sine,
@@ -64,27 +61,15 @@ begin
             numSamples => N_const
         )
         port map (
-            clk    => clk,
-            rst    => rst,
-            enable => enable,
-            coeff  => coeff,
-            data   => filler_output,
-            q1     => q1,
-            q2     => q2,
-            ready  => ready
-        );
-
-    -- Result instance
-    goertzel_final : entity work.goertzel_final
-        port map (
-            clk       => clk,
-            rst       => rst,
-            enable    => enable,
-            q1        => q1,
-            q2        => q2,
-            cosine    => cosine,
-            sine      => sine,
-            magnitude => magnitude
+            clk        => clk,
+            rst        => rst,
+            coeff      => coeff,
+            data       => filler_output,
+            cosine     => cosine,
+            sine       => sine,
+            magnitude  => magnitude
+            --real_part  => real_part,
+            --img_part   => img_part
         );
 
 end Structural;

@@ -1,22 +1,36 @@
-library IEEE;
-use IEEE.STD_LOGIC_1164.ALL;
-use IEEE.NUMERIC_STD.ALL;
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
+use std.textio.all;
 
-entity system_tb is
-end system_tb;
+entity system_tb_sine is
+end system_tb_sine;
 
-architecture Behavioral of system_tb is
+architecture Behavioral of system_tb_sine is
+
+	-- DUT component
+    component System is
+      port(
+        clk         : in  STD_LOGIC;
+        rst         : in  STD_LOGIC;
+        input       : in  STD_LOGIC_VECTOR(11 downto 0);
+        magnitude   : out STD_LOGIC_VECTOR(19 downto 0);
+        real_part   : out STD_LOGIC_VECTOR(19 downto 0);
+        img_part    : out STD_LOGIC_VECTOR(19 downto 0)
+        );
+    end component;
+    
     -- Constants for the testbench
     constant N_bits   : integer := 20;
     constant input_width : integer := 12;
 
     -- Testbench signals
-    signal clk         : std_logic := '0';
+    signal clk        : std_logic := '0';
     signal rst         : std_logic := '1';
-    signal tb_input    : std_logic_vector(input_width - 1 downto 0) := (others => '0');
+    signal data_signal : std_logic_vector(input_width - 1 downto 0) := (others => '0');
     signal magnitude   : std_logic_vector(N_bits - 1 downto 0);
-    signal real        : std_logic_vector(N_bits - 1 downto 0);
-    signal img         : std_logic_vector(N_bits - 1 downto 0);
+    signal real_part   : std_logic_vector(N_bits - 1 downto 0);
+    signal img_part    : std_logic_vector(N_bits - 1 downto 0);
     signal ready       : std_logic;
 
     -- Clock period
@@ -28,10 +42,10 @@ begin
         port map (
             clk       => clk,
             rst       => rst,
-            input     => tb_input,
+            input     => data_signal,
             magnitude => magnitude,
-            real_part      => real,
-            img_part       => img
+            real_part      => real_part,
+            img_part       => img_part
         );
 
     -- Clock generation process
@@ -47,55 +61,25 @@ begin
 
     -- Test process
     test_process : process
-    begin
-        -- Initialize inputs
-        rst <= '1';
-        tb_input <= (others => '0');
+	variable line_hex : line;
+	file input_file : text;
+	variable input_bit : unsigned(11 downto 0);
 
-        -- Wait for global reset
-        wait for 20 ns;
-        rst <= '0';
-
-        -- Wait for a few clock cycles
-        wait for 20 ns;
-
-        -- Apply a test input and observe outputs
-        tb_input <= std_logic_vector(to_unsigned(1023, input_width)); -- Example input value
-        wait for 100 ns;
-
-        -- Wait for the processing to complete
-        wait until ready = '1';
-
-        -- Print out the result for debugging
-        report "Magnitude: " & integer'image(to_integer(signed(magnitude)));
-
-        -- Apply another test input
-        rst <= '1'; -- Reset to restart the process
-        wait for 20 ns;
-        rst <= '0';
-        tb_input <= std_logic_vector(to_unsigned(2047, input_width));
-        wait for 100 ns;
-
-        -- Wait for the processing to complete
-        wait until ready = '1';
-
-        -- Print out the result for debugging
-        report "Magnitude: " & integer'image(to_integer(signed(magnitude)));
-
-        -- Apply another test input
-        rst <= '1'; -- Reset to restart the process
-        wait for 20 ns;
-        rst <= '0';
-        tb_input <= std_logic_vector(to_unsigned(4095, input_width));
-        wait for 100 ns;
-
-        -- Wait for the processing to complete
-        wait until ready = '1';
-
-        -- Print out the result for debugging
-        report "Magnitude: " & integer'image(to_integer(signed(magnitude)));
-
-        -- End simulation
-        wait;
-    end process;
+  		begin
+    			file_open(input_file, "input_sine.txt", read_mode);
+    			while not endfile(input_file) loop
+				readline(input_file, line_hex);
+      				hread(line_hex, input_bit);
+      				report "input_bit: " & to_hstring(input_bit);
+      				if input_bit = 1 then
+        				rst <= '1';
+      				else
+        				rst <= '0';
+        				data_signal <= std_logic_vector(resize(input_bit, data_signal'length));
+      				end if;
+      				wait until rising_edge(clk);
+    			end loop;
+    			file_close(input_file);
+   			 wait;
+  		end process;
 end Behavioral;
