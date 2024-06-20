@@ -25,12 +25,12 @@ architecture Behavioral of system_tb_sine is
     constant input_width : integer := 12;
 
     -- Testbench signals
-    signal clk         : std_logic := '0';
+    signal clk        : std_logic := '0';
     signal rst         : std_logic := '1';
-    signal data_signal    : std_logic_vector(input_width - 1 downto 0) := (others => '0');
+    signal data_signal : std_logic_vector(input_width - 1 downto 0) := (others => '0');
     signal magnitude   : std_logic_vector(N_bits - 1 downto 0);
-    signal real        : std_logic_vector(N_bits - 1 downto 0);
-    signal img         : std_logic_vector(N_bits - 1 downto 0);
+    signal real_part   : std_logic_vector(N_bits - 1 downto 0);
+    signal img_part    : std_logic_vector(N_bits - 1 downto 0);
     signal ready       : std_logic;
 
     -- Clock period
@@ -40,11 +40,12 @@ begin
     -- Instantiate the Unit Under Test (UUT)
     uut: entity work.System
         port map (
-            clk    		=> clk,
-            rst    		=> rst,
-            input   	=> data_signal,
-            magnitude	=> magnitude,
-            ready  		=> ready
+            clk       => clk,
+            rst       => rst,
+            input     => data_signal,
+            magnitude => magnitude,
+            real_part      => real_part,
+            img_part       => img_part
         );
 
     -- Clock generation process
